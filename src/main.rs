@@ -6,26 +6,30 @@ use clap::Parser;
 #[derive(Parser)]
 struct Arguments {
 	/// Batch size.
-	#[arg(short, long, default_value_t = 1)]
+	#[arg(short = 's', long, default_value_t = 1)]
 	pub size: usize,
 
 	/// Do not skip blanks.
-	#[arg(short, long, default_value_t = false)]
+	#[arg(short = 'b', long, default_value_t = false)]
 	pub blanks: bool,
 
 	/// Trim data.
-	#[arg(short, long, default_value_t = false)]
+	#[arg(short = 't', long, default_value_t = false)]
 	pub trim: bool,
 
 	/// Delimiter used while joining data.
-	#[arg(short, long, default_value = ",")]
+	#[arg(short = 'j', long, default_value = ",")]
 	pub join_delimiter: String,
 
 	/// Abort on error.
-	#[arg(short, long, default_value_t = false)]
+	#[arg(short = 'a', long, default_value_t = false)]
 	pub abort_on_error: bool,
 
-	/// Command to pass the data on.
+	/// Use tag while processing command arguments.
+	#[arg(short = 'g', long, default_value = "{}")]
+	pub tag: String,
+
+	/// Command to pass the data to.
 	#[arg(trailing_var_arg = true)]
 	pub command_args: Vec<String>,
 }
@@ -103,10 +107,14 @@ pub enum ExecutorError {
 struct Executor {
 	program_name: String,
 	arguments: Vec<String>,
+	tag: String,
 }
 
 impl Executor {
-	pub fn from_command(command: &mut Vec<String>) -> Result<Self, ExecutorError> {
+	pub fn from_command<Tt>(command: &mut Vec<String>, tag: Tt) -> Result<Self, ExecutorError>
+	where
+		Tt: ToString,
+	{
 		if command.is_empty() {
 			return Err(ExecutorError::Missing);
 		}
@@ -118,11 +126,16 @@ impl Executor {
 		Ok(Executor {
 			program_name,
 			arguments: command.to_vec(),
+			tag: tag.to_string(),
 		})
 	}
 
 	pub fn execute(&self, batch: &str) -> io::Result<ExitStatus> {
-		let prepared_args: Vec<String> = self.arguments.iter().map(|arg| arg.replace("{}", batch)).collect();
+		let prepared_args: Vec<String> = self
+			.arguments
+			.iter()
+			.map(|arg| arg.replace(self.tag.as_str(), batch))
+			.collect();
 
 		Command::new(self.program_name.as_str())
 			.args(prepared_args.into_iter())
@@ -133,7 +146,7 @@ impl Executor {
 fn main() {
 	let mut args = Arguments::parse();
 
-	let executor = match Executor::from_command(&mut args.command_args) {
+	let executor = match Executor::from_command(&mut args.command_args, &args.tag) {
 		Ok(executor) => executor,
 		Err(ExecutorError::Invalid) => {
 			eprintln!("Invalid command.");
