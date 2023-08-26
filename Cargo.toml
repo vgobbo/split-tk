@@ -2,6 +2,14 @@
 name = "split-tk"
 version = "0.1.0"
 edition = "2021"
+license = "LGPL-3.0"
+description = "Simple tool to split data."
+homepage = "https://github.com/vgobbo/split-tk"
+documentation = "https://github.com/vgobbo/split-tk"
+repository = "https://github.com/vgobbo/split-tk"
+readme = "https://github.com/vgobbo/split-tk/blob/main/README.md"
+keywords = [ "tool", "cli" ]
+categories = [ "command-line-utilities" ]
 
 [dependencies]
 clap = { version = "4.4", features = [ "derive" ] }
