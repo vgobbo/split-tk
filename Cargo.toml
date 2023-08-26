@@ -7,7 +7,7 @@ description = "Simple tool to split data."
 homepage = "https://github.com/vgobbo/split-tk"
 documentation = "https://github.com/vgobbo/split-tk"
 repository = "https://github.com/vgobbo/split-tk"
-readme = "https://github.com/vgobbo/split-tk/blob/main/README.md"
+readme = "README.md"
 keywords = [ "tool", "cli" ]
 categories = [ "command-line-utilities" ]
 
