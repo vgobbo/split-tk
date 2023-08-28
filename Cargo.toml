@@ -11,6 +11,14 @@ readme = "README.md"
 keywords = [ "tool", "cli" ]
 categories = [ "command-line-utilities" ]
 
+[profile.release]
+opt-level = 3
+debug = false
+panic = "unwind"
+lto = true
+codegen-units = 1
+strip = true
+
 [dependencies]
 clap = { version = "4.4", features = [ "derive" ] }
 exitcode = { version = "1.1" }
